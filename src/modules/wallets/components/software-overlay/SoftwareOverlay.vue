@@ -1,58 +1,63 @@
 <template>
   <div>
-    <mew-overlay :show-overlay="open" :title="typeTitle">
+    <mew-overlay
+      :key="pageResetKey"
+      :show-overlay="open"
+      :close="
+        () => {
+          btnSelected = '';
+          close();
+        }
+      "
+      :left-btn-text="btnSelected === '' ? '' : 'Back'"
+      :back="
+        () => {
+          btnSelected = '';
+        }
+      "
+    >
       <template v-slot:mewOverlayBody>
-        <v-sheet
-          v-if="type === '' && step === 0"
-          color="transparent"
-          max-width="650px"
-          class="mx-auto pt-5 mew-component--software-overlay"
-        >
-          <mew-super-button
-            class="mb-5"
-            color-theme="basic"
-            title="Keystore File"
-            subtitle="Keystore file contains all the sensitive information of your wallet.
+        <div v-if="btnSelected === ''">
+          <h2 class="text-center mb-4">Add an owned domain</h2>
+          <v-sheet
+            color="transparent"
+            max-width="650px"
+            class="mx-auto pt-5 mew-component--software-overlay"
+          >
+            <mew-super-button
+              class="mb-5"
+              color-theme="basic"
+              title="Keystore File"
+              subtitle="Keystore file contains all the sensitive information of your wallet.
                   We don't recommand using this method to create your wallet."
-            :right-icon="
-              require('@/assets/images/icons/icon-keystore-file.svg')
-            "
-            right-icon-type="img"
-            @click.native="
-              () => {
-                createType('keystore');
-              }
-            "
-          />
+              :right-icon="
+                require('@/assets/images/icons/icon-keystore-file.svg')
+              "
+              right-icon-type="img"
+              @click.native="btnSelected = 'keystore'"
+            />
 
-          <mew-super-button
-            class="mb-1"
-            color-theme="basic"
-            title="Mnemonic phrase"
-            subtitle="Mnemonic Phrase can be lost or stolen by someone else. We don't
+            <mew-super-button
+              class="mb-1"
+              color-theme="basic"
+              title="Mnemonic phrase"
+              subtitle="Mnemonic Phrase can be lost or stolen by someone else. We don't
                   recommand using this method to create your wallet."
-            :right-icon="require('@/assets/images/icons/icon-mnemonic.svg')"
-            right-icon-type="img"
-            @click.native="
-              () => {
-                createType('mnemonic');
-              }
-            "
-          />
+              :right-icon="require('@/assets/images/icons/icon-mnemonic.svg')"
+              right-icon-type="img"
+              @click.native="btnSelected = 'mnemonic'"
+            />
 
-          <warning-sheet
-            class="mew-component--warning"
-            title="NOT RECOMMENDED"
-            :link-obj="linkToLearnMore"
-            description="This information is sensitive, and these options should only be used in offline settings by experienced crypto users."
-          />
-        </v-sheet>
-        <div v-else-if="type === 'keystore'">
-          <keystore :update-step="updateStep" :step="step" />
+            <warning-sheet
+              class="mew-component--warning"
+              title="NOT RECOMMENDED"
+              :link-obj="linkToLearnMore"
+              description="This information is sensitive, and these options should only be used in offline settings by experienced crypto users."
+            />
+          </v-sheet>
         </div>
-        <div v-else-if="type === 'mnemonic'">
-          <mnemonic-phrase :update-step="updateStep" :step="step" />
-        </div>
+        <keystore v-if="btnSelected === 'keystore'" />
+        <mnemonic-phrase v-if="btnSelected === 'mnemonic'" />
       </template>
     </mew-overlay>
   </div>
@@ -69,9 +74,15 @@ export default {
     open: {
       type: Boolean,
       default: false
+    },
+    close: {
+      type: Function,
+      default: () => {}
     }
   },
   data: () => ({
+    pageResetKey: 1,
+    btnSelected: '',
     linkToLearnMore: {
       url:
         'https://kb.myetherwallet.com/en/security-and-privacy/not-recommended/',
@@ -80,15 +91,6 @@ export default {
     type: '',
     step: 0
   }),
-  computed: {
-    typeTitle() {
-      return this.type === ''
-        ? 'Software'
-        : this.type === 'keystore'
-        ? 'Keystore File'
-        : 'Mnemonic Phrase';
-    }
-  },
   watch: {
     type(newVal) {
       if (newVal === '') {
@@ -98,13 +100,8 @@ export default {
       }
     }
   },
-  methods: {
-    createType(type) {
-      this.type = type ? type : '';
-    },
-    updateStep(step) {
-      this.step = step ? step : 0;
-    }
+  created() {
+    this.btnSelected = '';
   }
 };
 </script>

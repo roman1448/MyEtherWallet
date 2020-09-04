@@ -77,7 +77,7 @@
         title-icon-class="warning--text text--darken-1"
         note="NOT RECOMMANDED"
         title-icon-type="mdi"
-        @click.native="showSoftware = !showSoftware"
+        @click.native="showSoftware = true"
       />
     </v-sheet>
 
@@ -90,7 +90,7 @@
       toast-type="info"
     />
 
-    <software-overlay :open="showSoftware" />
+    <software-overlay :open="showSoftware" :close="closeSoftwareOverlay" />
   </div>
 </template>
 
@@ -117,7 +117,12 @@ export default {
       centered: true
     },
     showSoftware: false
-  })
+  }),
+  methods: {
+    closeSoftwareOverlay() {
+      this.showSoftware = false;
+    }
+  }
 };
 </script>
 
